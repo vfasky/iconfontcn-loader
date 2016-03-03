@@ -79,6 +79,8 @@ module.exports = (css)->
 
         reName
 
+    if reMap == {}
+        return callback null, css
 
     for cssUrl of reMap
         do (cssUrl)-> request cssUrl, (err, res, body)->

@@ -40,14 +40,22 @@ parseCss = (css, loader, done = ->)->
         fullUrl = path.join sourcePathInfo.dir, baseUrl
 
         do (fontUrl, baseUrl)->
-            request.get 'http:' + fontUrl
-                   .on 'response', ->
-                       total++
-                       reg = new RegExp fontUrl, 'ig'
-                       css = css.replace reg, baseUrl
-                       doneDownFiles() if total == downFiles.length
+            if false == fs.isFileSync(fullUrl)
+                request.get 'http:' + fontUrl
+                       .on 'response', ->
+                           total++
+                           reg = new RegExp fontUrl, 'ig'
+                           css = css.replace reg, baseUrl
+                           doneDownFiles() if total == downFiles.length
 
-                   .pipe fs.createWriteStream fullUrl
+                       .pipe fs.createWriteStream fullUrl
+            else
+                console.log '%s 已经下载，跳过', fontUrl
+                total++
+                reg = new RegExp fontUrl, 'ig'
+                css = css.replace reg, baseUrl
+                doneDownFiles() if total == downFiles.length
+
 
 
 module.exports = (css)->
@@ -79,7 +87,7 @@ module.exports = (css)->
 
         reName
 
-    if reMap == {}
+    if Object.keys(reMap).length == 0
         return callback null, css
 
     for cssUrl of reMap
